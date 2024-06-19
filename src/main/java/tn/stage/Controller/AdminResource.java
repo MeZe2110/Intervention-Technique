@@ -1,21 +1,19 @@
 package tn.stage.Controller;
 
 
-import io.quarkus.security.identity.SecurityIdentity;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.jwt.JsonWebToken;
+
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
-import tn.stage.Entity.Role;
+
 import tn.stage.Entity.User;
 import tn.stage.Service.KeycloakService;
 
-
-
 import java.util.List;
-import java.util.Map;
+
 
 @Path("/Admin")
 @Produces(MediaType.APPLICATION_JSON)

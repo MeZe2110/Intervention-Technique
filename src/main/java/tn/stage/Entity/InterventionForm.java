@@ -24,11 +24,17 @@ public class InterventionForm {
     String nomTechnicien;
     String lieu;
     String type;
-    String state;
+
+    @Enumerated(EnumType.STRING)
+    State status;
+    @Enumerated(EnumType.STRING)
+    TypeIntervention interventionType;
+
     String garantie;
     String idAncien;
     String pieceRechange;
     String idNouveau;
+
     String clientFirstName;
     String clientLastName;
     String description;
@@ -37,8 +43,7 @@ public class InterventionForm {
 
     Date date;
 
-    @Enumerated(EnumType.STRING)
-    TypeIntervention interventionType;
+
 
 
 }

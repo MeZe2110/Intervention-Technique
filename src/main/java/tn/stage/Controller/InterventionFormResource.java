@@ -52,6 +52,12 @@ public class InterventionFormResource {
         return interventionFormService.getIntervention(id);
     }
 
+    @GET
+    @Path("MyInterventions")
+    public List<InterventionForm> getForm() {
+        return interventionFormService.getAllInterventionOfCurrentUser();
+    }
+
     @POST
     @Path("add")
     @Transactional
