@@ -5,16 +5,19 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 
-import tn.stage.Entity.InterventionForm;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import tn.stage.Entity.FormEntity.InterventionForm;
+
 import tn.stage.Service.InterventionFormService;
 
+
+import java.io.IOException;
 
 import java.util.List;
 
 @Path("form")
-@SecurityRequirement(name = "Keycloak")
 public class InterventionFormResource {
 
 
@@ -23,28 +26,13 @@ public class InterventionFormResource {
     InterventionFormService interventionFormService;
 
 
+
     @GET
     public List<InterventionForm> getForms() {
         return interventionFormService.getAllIntervention();
     }
 
-    @GET
-    @Path("stats/bestTechnicienOfTheMonth")
-    public List getBestTechnicien(){
-        return interventionFormService.getTopTechnicien();
-    }
 
-    @GET
-    @Path("stats/MostUsedChangePiece")
-    public List getMostUsedChangePiece(){
-        return interventionFormService.getMostUsedPieceRechange();
-    }
-
-    @GET
-    @Path("stats/MostRequestedTypeOfIntervention")
-    public List getMostRequestedTypeOfIntervention(){
-        return interventionFormService.getTopInterventionType();
-    }
 
     @GET
     @Path("{id}")
@@ -52,30 +40,33 @@ public class InterventionFormResource {
         return interventionFormService.getIntervention(id);
     }
 
+
     @GET
-    @Path("MyInterventions")
-    public List<InterventionForm> getForm() {
-        return interventionFormService.getAllInterventionOfCurrentUser();
+    @Path("mine/{mine}")
+    public List<InterventionForm> getInterventionsForCurrentUser(@PathParam("mine") String mine) {
+        return interventionFormService.getAllInterventionOfCurrentUser(mine);
     }
 
     @POST
     @Path("add")
     @Transactional
-    public Response create(InterventionForm form){
+    public Response create( InterventionForm form, @MultipartForm InputPart fileAvant, @MultipartForm InputPart fileApres) throws IOException {
+        if (fileAvant != null) {
+            String fileAvantPath = interventionFormService.saveFile(fileAvant);
+            form.setFilesAvant(fileAvantPath);
+        }
+        if (fileApres != null) {
+            String fileApresPath = interventionFormService.saveFile(fileApres);
+            form.setFilesApres(fileApresPath);
+        }
         interventionFormService.addIntervention(form);
         return Response.ok(form).build();
     }
 
-    @POST
-    @Path("update/{id}")
-    @Transactional
-    public Response update(@PathParam("id") Long id, InterventionForm form){
-        interventionFormService.updateIntervention(id,form);
-        return Response.ok(form).build();
-    }
+
 
     @DELETE
-    @Path("delete/{id}")
+        @Path("delete/{id}")
     @Transactional
     public void delete(@PathParam("id") Long id){
     interventionFormService.deleteIntervention(id);
@@ -84,4 +75,8 @@ public class InterventionFormResource {
 
 
 
+
 }
+
+
+

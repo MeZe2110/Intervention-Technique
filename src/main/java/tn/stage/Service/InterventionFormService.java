@@ -3,11 +3,18 @@ package tn.stage.Service;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.jetbrains.annotations.NotNull;
-import tn.stage.Entity.InterventionForm;
-import tn.stage.Entity.State;
-import tn.stage.Repository.InterventionFormRepository;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import tn.stage.Entity.FormEntity.*;
+import tn.stage.Entity.MultipartBody;
+import tn.stage.Repository.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @ApplicationScoped
@@ -18,23 +25,57 @@ public class InterventionFormService {
     @Inject
     SecurityIdentity securityIdentity;
 
+    @Inject
+    TypePanneRepository typePanneRepository;
+    @Inject
+    TypeBoitierRepository typeBoitierRepository;
+    @Inject
+    TypeActionRepository typeActionRepository;
+    @Inject
+    PieceRechangeRepository  pieceRechangeRepository;
+
 
     // Adds a new intervention form
     public void addIntervention(InterventionForm form) {
-        // Check if the current user has the role "TECHNICIEN"
-        if (securityIdentity.hasRole("TECHNICIEN")) {
-            // Set the technician's name in the form to the current user's name
-            form.setNomTechnicien(securityIdentity.getPrincipal().getName());
+        // Check if the addable types exists
+        MultipartBody multipartBody = new MultipartBody();
+        String nameAction = form.getAction().getName();
+        TypeAction typeAction = typeActionRepository.find("name", nameAction).firstResult();
+        if (typeAction == null) {
+            typeAction = new TypeAction();
+            typeAction.setName(nameAction);
+            typeActionRepository.persist(typeAction);
         }
-        // Check if the current user has the role "CLIENT"
-        if (securityIdentity.hasRole("CLIENT")) {
-            // Set the status of the form to "WAITING_FOR_VALIDATION"
-            form.setStatus(State.WAITING_FOR_VALIDATION);
+        String namePanne = form.getPanne().getName();
+        TypePanne typePanne = typePanneRepository.find("name", namePanne).firstResult();
+        if (typePanne == null) {
+            typePanne = new TypePanne();
+            typePanne.setName(namePanne);
+            typePanneRepository.persist(typePanne);
         }
-        // Set the status of the form to "IN_PROGRESS"
-        form.setStatus(State.IN_PROGRESS);
+        String nameBoitier = form.getBoitier().getName();
+        TypeBoitier typeBoitier = typeBoitierRepository.find("name", nameBoitier).firstResult();
+        if (typeBoitier == null) {
+            typeBoitier = new TypeBoitier();
+            typeBoitier.setName(nameBoitier);
+            typeBoitierRepository.persist(typeBoitier);
+        }
+        String namePiece = form.getPiece().getName();
+        PieceRechange pieceRechange = pieceRechangeRepository.find("name", namePiece).firstResult();
+        if (pieceRechange == null) {
+            pieceRechange = new PieceRechange();
+            pieceRechange.setName(namePiece);
+            pieceRechangeRepository.persist(pieceRechange);
+        }
+        form.setAction(typeAction);
+        form.setBoitier(typeBoitier);
+        form.setPanne(typePanne);
+        form.setPiece(pieceRechange);
+        form.setDate(new Date());
+
         // Persist the form in the repository
         interventionFormRepository.persist(form);
+
     }
 
     // Deletes an intervention form by its ID
@@ -67,10 +108,8 @@ public class InterventionFormService {
         return interventionFormRepository.listAll();
     }
 
-    // Retrieves all intervention forms of the current user
-    public List<InterventionForm> getAllInterventionOfCurrentUser() {
-        // Return the list of intervention forms assigned to the current user
-        return interventionFormRepository.list("nomTechnicien", securityIdentity.getPrincipal().getName());
+    public List<InterventionForm> getAllInterventionOfCurrentUser(String currentUserName) {
+        return interventionFormRepository.listByNomTechnicien(currentUserName);
     }
 
     // Retrieves an intervention form by its ID
@@ -79,20 +118,24 @@ public class InterventionFormService {
         return interventionFormRepository.findById(id);
     }
 
-    // Updates an existing intervention form by its ID
-    public void updateIntervention(Long id, @NotNull InterventionForm form) {
-        // Find the existing form in the repository by its ID
-        InterventionForm iform = interventionFormRepository.findById(id);
 
-        // Update the form fields with the new values
-        iform.setClientFirstName(form.getClientFirstName());
-        iform.setClientLastName(form.getClientLastName());
-        iform.setDescription(form.getDescription());
-        iform.setInterventionType(form.getInterventionType());
-        iform.setMatricule(form.getMatricule());
+    public static final String UPLOAD_DIR = "uploads/";
 
-        // Persist the updated form in the repository
-        interventionFormRepository.persist(iform);
+    public String saveFile(InputPart inputPart) throws IOException {
+        String fileName = getFileName(inputPart.getHeaders().getFirst("Content-Disposition"));
+        String filePath = UPLOAD_DIR + fileName;
+        byte[] bytes = inputPart.getBody(byte[].class, null);
+        Files.write(Paths.get(filePath), bytes);
+        return filePath;
+    }
+
+    public String getFileName(String contentDisposition) {
+        for (String part : contentDisposition.split(";")) {
+            if (part.trim().startsWith("filename")) {
+                return part.split("=")[1].trim().replaceAll("\"", "");
+            }
+        }
+        return "unknown";
     }
 
 }

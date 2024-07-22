@@ -2,7 +2,7 @@ package tn.stage.Repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import tn.stage.Entity.InterventionForm;
+import tn.stage.Entity.FormEntity.InterventionForm;
 
 import java.util.List;
 
@@ -43,6 +43,10 @@ public class InterventionFormRepository implements PanacheRepository<Interventio
                                 "ORDER BY pieceCount DESC")
                 .setMaxResults(5) // Limit the results to the top 5
                 .getResultList(); // Get the result list
+    }
+
+    public List<InterventionForm> listByNomTechnicien(String nomTechnicien) {
+        return list("nomTechnicien", nomTechnicien);
     }
 
 

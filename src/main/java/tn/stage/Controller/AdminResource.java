@@ -7,23 +7,43 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
-
-import tn.stage.Entity.User;
+import tn.stage.Entity.UserEntity.User;
+import tn.stage.Service.InterventionFormService;
 import tn.stage.Service.KeycloakService;
 
 import java.util.List;
 
 
-@Path("/Admin")
+@Path("Admin")
 @Produces(MediaType.APPLICATION_JSON)
-@SecurityRequirement(name="Keycloak")
 public class AdminResource {
 
 
 
     @Inject
     KeycloakService keycloakService;
+    @Inject
+    InterventionFormService interventionFormService;
+
+
+    @GET
+    @Path("stats/bestTechnicienOfTheMonth")
+    public List getBestTechnicien(){
+        return interventionFormService.getTopTechnicien();
+    }
+
+    @GET
+    @Path("stats/MostUsedChangePiece")
+    public List getMostUsedChangePiece(){
+        return interventionFormService.getMostUsedPieceRechange();
+    }
+
+    @GET
+    @Path("stats/MostRequestedTypeOfIntervention")
+    public List getMostRequestedTypeOfIntervention(){
+        return interventionFormService.getTopInterventionType();
+    }
+
 
 
     @GET

@@ -10,8 +10,8 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
-import tn.stage.Entity.Role;
-import tn.stage.Entity.User;
+import tn.stage.Entity.UserEntity.Role;
+import tn.stage.Entity.UserEntity.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,8 +32,7 @@ public class KeycloakService {
                 .grantType(OAuth2Constants.PASSWORD) // Set the grant type for authentication
                 .username("meza") // Set the username for authentication
                 .password("meza") // Set the password for authentication
-                .clientId("admin-cli") // Set the client ID
-                .clientSecret("4sx2owO4B0ALiMMAl6dzh2LIZIAUR8cF") // Set the client secret
+                .clientId("admin-cli") // Set the client ID// Set the client secret
                 .build(); // Build the Keycloak instance
     }
 
@@ -50,6 +49,7 @@ public class KeycloakService {
         // Fetch the user representation by ID and map it to a User object
         return mapUser(keycloak.realm("BWS-Suivi-Technicien").users().get(id).toRepresentation());
     }
+
 
     // Create a new user
     public User createUser(User user) {
@@ -137,7 +137,7 @@ public class KeycloakService {
     }
 
     // Define the allowed roles for filtering
-    private static final Set<String> ALLOWED_ROLES = Set.of("USER", "ADMIN", "MANAGER");
+    private static final Set<String> ALLOWED_ROLES = Set.of("CLIENT", "ADMIN", "MANAGER","TECHNICIEN");
 
     // Maps a list of RoleRepresentation objects to a list of Role objects, filtering by allowed roles
     private List<Role> mapRoles(List<RoleRepresentation> representations) {
