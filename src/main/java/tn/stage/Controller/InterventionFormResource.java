@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
@@ -15,7 +16,8 @@ import tn.stage.Service.InterventionFormService;
 
 import java.io.IOException;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Path("form")
 public class InterventionFormResource {
@@ -25,13 +27,10 @@ public class InterventionFormResource {
     @Inject
     InterventionFormService interventionFormService;
 
-
-
     @GET
     public List<InterventionForm> getForms() {
         return interventionFormService.getAllIntervention();
     }
-
 
 
     @GET
@@ -39,6 +38,7 @@ public class InterventionFormResource {
     public InterventionForm getForm(@PathParam("id") Long id) {
         return interventionFormService.getIntervention(id);
     }
+
 
 
     @GET
@@ -65,12 +65,7 @@ public class InterventionFormResource {
 
 
 
-    @DELETE
-        @Path("delete/{id}")
-    @Transactional
-    public void delete(@PathParam("id") Long id){
-    interventionFormService.deleteIntervention(id);
-    }
+
 
 
 

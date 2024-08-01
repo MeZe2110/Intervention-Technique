@@ -22,29 +22,6 @@ public class AdminResource {
 
     @Inject
     KeycloakService keycloakService;
-    @Inject
-    InterventionFormService interventionFormService;
-
-
-    @GET
-    @Path("stats/bestTechnicienOfTheMonth")
-    public List getBestTechnicien(){
-        return interventionFormService.getTopTechnicien();
-    }
-
-    @GET
-    @Path("stats/MostUsedChangePiece")
-    public List getMostUsedChangePiece(){
-        return interventionFormService.getMostUsedPieceRechange();
-    }
-
-    @GET
-    @Path("stats/MostRequestedTypeOfIntervention")
-    public List getMostRequestedTypeOfIntervention(){
-        return interventionFormService.getTopInterventionType();
-    }
-
-
 
     @GET
     @Path("allUsers")

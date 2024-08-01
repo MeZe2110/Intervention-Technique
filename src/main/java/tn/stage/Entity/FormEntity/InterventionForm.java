@@ -52,6 +52,8 @@ public class InterventionForm {
 
     //if intervention is changer boitier
     Long idNouveauBoitier;
+    //if intervention is changer boitier
+
     //if intervention is deplacer
     String newSpaceName;
 
